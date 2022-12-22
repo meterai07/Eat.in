@@ -12,7 +12,7 @@ import java.sql.DriverManager;
  * @author BISMILLAH
  */
 public class ConnectionDatabase {
-    static String connectionUrl = "jdbc:sqlserver://LAPTOP-72DGJ6K6:1433;databaseName=Gojek;user=sa;password=12345678;encrypt=false;trustServerCertificate=true;";
+    static String connectionUrl = "jdbc:sqlserver://LAPTOP-72DGJ6K6:1433;databaseName=Eat.in;user=sa;password=12345678;encrypt=false;trustServerCertificate=true;";
     static Connection con;
     
     public static Connection getConnection () {

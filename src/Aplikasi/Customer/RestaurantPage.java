@@ -8,6 +8,7 @@ import config.ConnectionDatabase;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -17,45 +18,34 @@ import javax.swing.table.DefaultTableModel;
 public class RestaurantPage extends javax.swing.JFrame {
     
     private Connection conn = ConnectionDatabase.getConnection();
-    private PreparedStatement prt;
-    private ResultSet rst;
+    private PreparedStatement prt, prt2;
+    private ResultSet rst, dataCustomer;
     
-    private String data;
+    private String idrestaurant;
+    private static String orderID;
+    private static int clicked;
     
     /**
      * Creates new form RestaurantPage
      */
     public RestaurantPage() {
         initComponents();
-//        try {
-//            prt = conn.prepareStatement("select * from restaurant where restaurant = 'KFC'");
-//            rst = prt.executeQuery();
-//            
-//                        while (rst.next()){
-//                String makanan = rst.getString("makanan");  
-//                String harga = rst.getString("harga");
-//                String tableData[] = { makanan, harga };
-//                DefaultTableModel tbModel = (DefaultTableModel)jTable1.getModel();
-//                tbModel.addRow(tableData);  
-//            }
-//        } catch (Exception e){
-//            e.printStackTrace();
-//        }
     }
     
-    public RestaurantPage(String data) {
+    public RestaurantPage(String idrestaurant, ResultSet dataCustomer) {
         initComponents();
         try {
-            prt = conn.prepareStatement("select * from restaurant where restaurant=?");
-            prt.setString(1, data);
+            this.dataCustomer = dataCustomer;
+            this.idrestaurant = idrestaurant;
+            prt = conn.prepareStatement("select * from menu where idrestaurant=?");
+            prt.setString(1, idrestaurant);
             rst = prt.executeQuery();
             
-            this.data = data;
-            
             while (rst.next()){
-                String makanan = rst.getString("makanan");  
+                String menu = rst.getString("menu");
                 String harga = rst.getString("harga");
-                String tableData[] = { makanan, harga };
+                
+                String tableData[] = { menu, harga};
                 DefaultTableModel tbModel = (DefaultTableModel)jTable1.getModel();
                 tbModel.addRow(tableData);  
             }
@@ -75,8 +65,11 @@ public class RestaurantPage extends javax.swing.JFrame {
 
         jPopupMenu1 = new javax.swing.JPopupMenu();
         add = new javax.swing.JMenuItem();
+        delete = new javax.swing.JMenuItem();
+        jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        jPanel2 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
 
@@ -88,14 +81,26 @@ public class RestaurantPage extends javax.swing.JFrame {
         });
         jPopupMenu1.add(add);
 
+        delete.setText("delete");
+        delete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteActionPerformed(evt);
+            }
+        });
+        jPopupMenu1.add(delete);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+
+        jTable1.setBackground(new java.awt.Color(246, 246, 246));
+        jTable1.setFont(new java.awt.Font("Inter Medium", 0, 12)); // NOI18N
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Nama Menu", "Harga"
+                "Menu", "Price"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -116,59 +121,83 @@ public class RestaurantPage extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(jTable1);
 
-        jButton1.setText("back");
+        jPanel2.setBackground(new java.awt.Color(54, 33, 89));
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/icons8_back_32px_1.png"))); // NOI18N
+        jButton1.setContentAreaFilled(false);
+        jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
 
-        jButton2.setText("buat pesanan");
+        jButton2.setBackground(new java.awt.Color(242, 242, 242));
+        jButton2.setFont(new java.awt.Font("Inter SemiBold", 0, 12)); // NOI18N
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/icons8_shopping_cart_32px.png"))); // NOI18N
+        jButton2.setText("My Order");
+        jButton2.setBorder(null);
+        jButton2.setContentAreaFilled(false);
+        jButton2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
             }
         });
 
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(29, 29, 29))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 47, Short.MAX_VALUE))
+                .addContainerGap(18, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 558, Short.MAX_VALUE)))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(144, 144, 144)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(163, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(37, 37, 37)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
-                .addContainerGap(9, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-        dispose();
-    }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-        dispose();
-        new OrderPage().setVisible(true);
-    }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jTable1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MousePressed
         // TODO add your handling code here:
@@ -185,34 +214,161 @@ public class RestaurantPage extends javax.swing.JFrame {
     }//GEN-LAST:event_jTable1MouseReleased
 
     private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
-        // TODO add your handling code here:
+        // TODO add your handling code here:        
+        clicked++;
+        
         int row = jTable1.getSelectedRow();
         String selectedItem = "";
         if (row != -1){
             selectedItem = jTable1.getValueAt(row, 0).toString();
+        } else {
+            clicked = 0;
         }
         
         try {
-            prt = conn.prepareStatement("select * from restaurant where restaurant=? and makanan=?");
-            prt.setString(1, this.data);
-            prt.setString(2, selectedItem);
-            rst = prt.executeQuery();
-            
-            if (rst.next()){
-                // belum membuat table pesanan didalm database
-                // tinggal eksekusi memasukkan kedalam table pesanan
-                // id restauran, id pesanan, id customer, makanan, total harga
-                System.out.println(rst.getString("makanan"));
+            if (!selectedItem.equalsIgnoreCase("")){
+                if (clicked == 1){
+                    orderID = Integer.toString((int)(Math.random() * (99999999 - 11111111 + 1) + 11111111));
+                }
+                
+                prt = conn.prepareStatement("select * from orderlist where orderid = ?");
+                prt.setString(1, orderID);
+                
+                rst = prt.executeQuery();
+                
+                if (!rst.next()){
+                    // check apakah sudah pernah membuat pesanan atau belum
+                    
+                    prt = conn.prepareStatement("select * from menu where idrestaurant = ? and menu= ?");
+                    prt.setString(1, idrestaurant);
+                    prt.setString(2, selectedItem);
+                    rst = prt.executeQuery();
+                    
+                    if (rst.next()){
+                        prt = conn.prepareStatement("insert into orderlist values (?, ?, ?, ?, ?)");
+                        prt.setString(1, orderID);
+                        prt.setString(2, dataCustomer.getString("idcustomer"));
+                        prt.setString(3, rst.getString("menu"));
+                        prt.setString(4, rst.getString("harga"));
+                        prt.setInt(5, 1);
+
+                        prt.executeUpdate();   
+                    }
+                    
+                } else {
+                    // sudah membuat pesanan
+                    
+//                    prt = conn.prepareStatement("update orderlist set quantity = ? where orderid = ?");
+//                    prt.setInt(1, rst.getInt("quantity") + 1);
+//                    prt.setString(2, orderID);
+//                    
+//                    prt.executeUpdate();
+                    prt = conn.prepareStatement("select * from orderlist where orderid = ? and idcustomer= ? and menu = ?");
+                    prt.setString(1, orderID);
+                    prt.setString(2, dataCustomer.getString("idcustomer"));
+                    prt.setString(3, selectedItem);
+                    rst = prt.executeQuery();
+                    
+                    if (!rst.next()){
+                        prt = conn.prepareStatement("select * from menu where idrestaurant = ? and menu= ?");
+                        prt.setString(1, idrestaurant);
+                        prt.setString(2, selectedItem);
+                        rst = prt.executeQuery(); 
+                        
+                        if (rst.next()){
+                        prt = conn.prepareStatement("insert into orderlist values (?, ?, ?, ?, ?)");
+                        prt.setString(1, orderID);
+                        prt.setString(2, dataCustomer.getString("idcustomer"));
+                        prt.setString(3, rst.getString("menu"));
+                        prt.setString(4, rst.getString("harga"));
+                        prt.setInt(5, 1);
+
+                        prt.executeUpdate();   
+                        }
+                    } else {
+                        prt = conn.prepareStatement("update orderlist set quantity = ? where orderid = ? and menu = ?");
+                        prt.setInt(1, rst.getInt("quantity") + 1);
+                        prt.setString(2, orderID);
+                        prt.setString(3, selectedItem);
+
+                        prt.executeUpdate();                        
+                    }
+                }
+                
             }
             
         } catch (Exception e){
             e.printStackTrace();
         }
     }//GEN-LAST:event_addActionPerformed
+
+    private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
+        // TODO add your handling code here:
+        int row = jTable1.getSelectedRow();
+        String selectedItem = "";
+        
+        if (row != -1){
+            selectedItem = jTable1.getValueAt(row, 0).toString();
+        }
+        
+        try {
+            prt = conn.prepareStatement("select * from menu where idrestaurant = ? and menu= ?");
+            prt.setString(1, idrestaurant);
+            prt.setString(2, selectedItem);
+            rst = prt.executeQuery();
+            
+            if (rst.next()){
+                prt = conn.prepareStatement("delete from orderlist where orderid=? and idcustomer=? and menu=?");
+                prt.setString(1, orderID);
+                prt.setString(2, dataCustomer.getString("idcustomer"));
+                prt.setString(3, rst.getString("menu"));
+                
+                prt.executeUpdate();
+            }
+            
+            prt = conn.prepareStatement("select * from orderlist where orderid=? and idcustomer=?");
+            prt.setString(1, orderID);
+            prt.setString(2, dataCustomer.getString("idcustomer"));
+            
+            rst = prt.executeQuery();
+            
+            if (!rst.next()){
+                orderID = null;
+                clicked = 0;
+            }
+            
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_deleteActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        new OrderPage(idrestaurant, orderID, dataCustomer).setVisible(true);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        if (orderID != null){
+            JOptionPane.showMessageDialog(rootPane, "You are currently placing an order at this restaurant", "error", 1);
+            return;
+        }
+
+        dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
     
     private void showPopUp(java.awt.event.MouseEvent e){
         jPopupMenu1.show(e.getComponent(), e.getX(), e.getY());
     }
+    
+    static void setorderID (String orderID){
+        RestaurantPage.orderID = orderID;
+    }
+    
+    static void setClicked (int clicked){
+        RestaurantPage.clicked = 0;
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -250,8 +406,11 @@ public class RestaurantPage extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem add;
+    private javax.swing.JMenuItem delete;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;

@@ -4,17 +4,67 @@
  */
 package Aplikasi.Customer;
 
+import config.ConnectionDatabase;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+
 /**
  *
  * @author BISMILLAH
  */
 public class OrderPage extends javax.swing.JFrame {
-
+    
+    private Connection conn = ConnectionDatabase.getConnection();
+    private PreparedStatement prt, prt2,prtCheck;
+    private ResultSet rst,dataCustomer;
+    
+    private String orderID, idrestaurant;
+    private int jumlahHargaPesanan;
+    
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");  
+    LocalDateTime now = LocalDateTime.now();  
+    
     /**
      * Creates new form OrderPage
      */
     public OrderPage() {
         initComponents();
+    }
+    
+    
+    public OrderPage(String idrestaurant, String orderID, ResultSet dataCustomer){
+        initComponents();
+        try {
+            this.idrestaurant = idrestaurant;
+            this.orderID = orderID;
+            this.dataCustomer = dataCustomer;
+            prt = conn.prepareStatement("select * from orderlist where orderid=? and idcustomer=?;");
+            prt.setString(1, orderID);
+            prt.setString(2, dataCustomer.getString("idcustomer"));
+            
+            rst = prt.executeQuery();
+            
+            while (rst.next()){
+                String menu = rst.getString("menu");  
+                String harga = Integer.toString(rst.getInt("harga"));
+                String jumlah = Integer.toString(rst.getInt("quantity"));
+                String jumlahHarga = Integer.toString(rst.getInt("quantity") * rst.getInt("harga"));
+                jumlahHargaPesanan += Integer.parseInt(jumlahHarga);
+                String tableData[] = { menu, harga,jumlah, jumlahHarga };
+                DefaultTableModel tbModel = (DefaultTableModel)jTable1.getModel();
+                tbModel.addRow(tableData);  
+            }
+            
+            jTextField1.setText(jTextField1.getText() + Integer.toString(jumlahHargaPesanan));
+            
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -26,22 +76,284 @@ public class OrderPage extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
+        jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jLabel1 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        jButton3 = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jLabel5 = new javax.swing.JLabel();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icons/icons8_back_32px.png"))); // NOI18N
+        jButton1.setToolTipText("");
+        jButton1.setContentAreaFilled(false);
+        jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton2.setBackground(new java.awt.Color(100, 102, 175));
+        jButton2.setFont(new java.awt.Font("Inter", 1, 12)); // NOI18N
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
+        jButton2.setText("Check Out");
+        jButton2.setBorder(null);
+        jButton2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jTable1.setBackground(new java.awt.Color(246, 246, 246));
+        jTable1.setFont(new java.awt.Font("Inter Medium", 0, 12)); // NOI18N
+        jTable1.setForeground(new java.awt.Color(48, 48, 48));
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Item", "Price", "Qty", "Total Price"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(jTable1);
+
+        jLabel1.setFont(new java.awt.Font("Inter SemiBold", 0, 12)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(48, 48, 48));
+        jLabel1.setText("Total");
+
+        jTextField1.setEditable(false);
+        jTextField1.setBackground(new java.awt.Color(255, 255, 255));
+        jTextField1.setFont(new java.awt.Font("Inter", 1, 12)); // NOI18N
+        jTextField1.setForeground(new java.awt.Color(48, 48, 48));
+        jTextField1.setText("Rp. ");
+
+        jButton3.setBackground(new java.awt.Color(238, 238, 238));
+        jButton3.setFont(new java.awt.Font("Inter", 1, 12)); // NOI18N
+        jButton3.setForeground(new java.awt.Color(48, 48, 48));
+        jButton3.setText("Cancel");
+        jButton3.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(204, 204, 204)));
+        jButton3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setFont(new java.awt.Font("Inter SemiBold", 0, 12)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(48, 48, 48));
+        jLabel2.setText("Payment Method");
+
+        jComboBox1.setFont(new java.awt.Font("Inter", 1, 12)); // NOI18N
+        jComboBox1.setForeground(new java.awt.Color(48, 48, 48));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Cash", "Mobile Banking" }));
+
+        jLabel5.setFont(new java.awt.Font("Inter ExtraBold", 0, 45)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(48, 48, 48));
+        jLabel5.setText("Check Out");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(42, 42, 42)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel5))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 526, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGap(367, 367, 367)
+                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(43, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1))
+                .addGap(26, 26, 26)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(31, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        try {
+            String option = jComboBox1.getSelectedItem().toString();
+            
+            prt = conn.prepareStatement("select * from orderlist where orderid = ?");
+            prt.setString(1, orderID);
+            rst = prt.executeQuery();
+            
+            if (option.equalsIgnoreCase("mobile banking")){
+                try {
+                    // check saldo
+                    prtCheck = conn.prepareStatement("select * from accountbanking where idcustomer = ?");
+                    prtCheck.setInt(1, dataCustomer.getInt("idcustomer"));
+            
+                    rst = prtCheck.executeQuery();
+                    
+                    if (rst.next()){
+                        if (rst.getInt("balance") <= 0 || rst.getInt("balance") - jumlahHargaPesanan <= 0){
+                            JOptionPane.showMessageDialog(rootPane, "your balance is not enough. please top up your balance", "error", 1);
+//                            conn.rollback();
+                            return;
+                        }
+                    } else if (!rst.next()){
+                        prt = conn.prepareStatement("insert into accountbanking values (?, ?)");
+                        prt.setInt(1, dataCustomer.getInt("idcustomer"));
+                        prt.setInt(2, 0);
+                        
+                        prt.execute();
+                        JOptionPane.showMessageDialog(rootPane, "your balance is not enough. please top up your balance", "error", 1);
+                        return;
+                    }
+                    conn.setAutoCommit(false);
+                    prt = conn.prepareStatement("insert into orderhistory values (?, ?, ?, ?, ?, ?, (select count(*) from orderlist where orderid = ?))");
+                    prt.setString(1, this.idrestaurant);
+                    prt.setString(2, orderID);
+                    prt.setString(3, dataCustomer.getString("idcustomer"));
+                    prt.setString(4, Integer.toString(jumlahHargaPesanan));
+                    prt.setString(5, option);
+                    prt.setString(6, dtf.format(now));
+                    prt.setInt(7, Integer.parseInt(orderID));
+
+                    prt.executeUpdate();
+                    prt = conn.prepareStatement("update accountbanking set balance = ((select balance from accountbanking where idcustomer = ?) - ?) where idcustomer = ?");
+                    prt.setInt(1, dataCustomer.getInt("idcustomer"));
+                    prt.setInt(2, jumlahHargaPesanan);
+                    prt.setInt(3, dataCustomer.getInt("idcustomer"));
+
+                    prt.executeUpdate();
+                    conn.commit();
+                    
+                    if (conn != null){
+                        JOptionPane.showMessageDialog(rootPane, "Your order has been successfully created", "success", 1);
+                        RestaurantPage.setorderID(null);
+                        RestaurantPage.setClicked(0);
+                        dispose();  
+                    }
+                    
+                } catch (Exception e){
+                    e.printStackTrace();
+                    if (conn != null){
+                        try {
+                            System.err.println("Rollback");
+                            conn.rollback();
+                        } catch (Exception excep){
+                            excep.printStackTrace();
+                        }
+                    }
+                }
+                return;
+            }
+            
+            if (orderID != null && rst.next()){    
+                prt = conn.prepareStatement("insert into orderhistory values (?, ?, ?, ?, ?, ?, (select count(*) from orderlist where orderid = ?))");
+                prt.setString(1, this.idrestaurant);
+                prt.setString(2, orderID);
+                prt.setString(3, dataCustomer.getString("idcustomer"));
+                prt.setString(4, Integer.toString(jumlahHargaPesanan));
+                prt.setString(5, option);
+                prt.setString(6, dtf.format(now));
+                prt.setInt(7, Integer.parseInt(orderID));
+                
+                
+                int status = prt.executeUpdate();
+                
+                if (status != -1){
+                    JOptionPane.showMessageDialog(rootPane, "Your order has been successfully created", "success", 1);
+                    RestaurantPage.setorderID(null);
+                    RestaurantPage.setClicked(0);
+                    
+                    dispose();  
+                }                           
+            } else {
+                JOptionPane.showMessageDialog(rootPane, "You haven't placed an order yet", "error", 1);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        try {
+            prt = conn.prepareStatement("delete from orderlist where orderid = ?");
+            prt.setString(1, orderID);
+            RestaurantPage.setorderID(null);
+            RestaurantPage.setClicked(0);
+            prt.execute();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        dispose();
+        
+    }//GEN-LAST:event_jButton3ActionPerformed
+    
     /**
      * @param args the command line arguments
      */
@@ -78,5 +390,16 @@ public class OrderPage extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }
